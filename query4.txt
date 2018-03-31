@@ -1,0 +1,15 @@
+
+
+4.1 SELECT last_name, department_name, city FROM departments RIGHT OUTER JOIN locations USING(location_id) LEFT OUTER JOIN employees USING(department_id)
+
+4.2 SELECT D.department_name, COUNT(*) as Ilosc_pracownikow FROM departments D NATURAL JOIN employees GROUP BY D.department_name HAVING COUNT(*) > 5
+
+4.3 SELECT D.department_name, COUNT(*) AS ILOSC_PRACOWNIKOW FROM departments D RIGHT OUTER JOIN employees E USING(department_id) HAVING count(*) > 5 GROUP BY D.department_name
+
+4.4 SELECT last_name, ROUND(100*salary/max_salary) "procent mo¿liwej wyp³aty" FROM employees JOIN jobs USING(job_id) ORDER BY salary DESC
+
+4.5 SELECT department_name AS Nazwa_dzialu, COUNT(employee_id) AS ilosc FROM departments JOIN employees USING(department_id) JOIN jobs USING(job_id) WHERE ROUND(100*salary/max_salary) > 80 GROUP BY department_name HAVING COUNT(employee_id) >=2
+
+4.6 SELECT department_name AS Nazwa_dzialu, COUNT(employee_id) AS ilosc, ROUND((((max(salary)+min(salary))/2)/100),2) AS Wyplata FROM departments JOIN employees USING(department_id) GROUP BY department_name
+
+4.7 SELECT last_name, hire_date FROM employees WHERE hire_date < (SELECT hire_date FROM employees WHERE employee_id = '123')

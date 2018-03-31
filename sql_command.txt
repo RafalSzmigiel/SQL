@@ -1,0 +1,479 @@
+SQL – ZAPYTANIA
+---------------------------------------------------------------------------------------------------------------------------
+2 
+Ograniczenie DISTINCT - wyœwietla wiersze bez powtarzania, 
+np. Wyœwietl wszystkie kody stanowisk (bez powtarzania):
+
+SELECT DISTINCT job_id "kod stanowiska" FROM employees;
+
+Operator BETWEEN .. AND .. - ogranicza wartoœci do tych, które s¹ pomiêdzy danymi wielkoœciami, 
+np. Wyœwietl nazwiska oraz numery pracowników, których numer pracownika zawiera siê pomiêdzy 110 a 120, posortowane rosn¹co po numerach pracowników:
+
+SELECT last_name "nazwisko", employee_id "numer pracownika" FROM employees WHERE employee_id BETWEEN 110 AND 120 ORDER BY employee_id;
+
+Operator OR / AND - umo¿liwia rozszerzenie ograniczenia WHERE do kolejnego warunku, 
+np. Wyœwietl numery i nazwiska pracowników, których wyp³ata wynosi 10000 lub numer kierownika to 100:
+
+SELECT employee_id "numer pracownika", last_name "nazwisko" FROM employees WHERE salary=10000 OR manager_id=100;
+
+Operator LIKE - wykorzystywany przy filtrowaniu kolumn, w których typem danych s¹ ci¹gi znaków, np.
+Wyœwietl imiona i nazwiska pracowników, których kod stanowiska rozpoczyna siê od "FI":
+
+SELECT first_name "imie", last_name "nazwisko" FROM employees WHERE job_id LIKE 'FI%';
+
+Operator COUNT - liczy iloœæ wierszy, które spe³niaj¹ dane ograniczenia, 
+np. Wyœwietl iloœæ pracowników, których wyp³ata wynosi ponad 10000:
+
+SELECT COUNT(*) "ilosc bogatszych pracownikow" FROM employees WHERE salary > 10000;
+
+Operator GROUP BY - wykorzystywany do grupowania wierszy pod wzglêdem powtarzaj¹cych siê wartoœci w danej kolumnie, UWAGA ! nie wystêpuje samemu !
+
+Operator COUNT + GROUP BY - liczy iloœæ wierszy, które spe³niaj¹ warunki okreœlone przez ograniczenie GROUP BY, 
+np. Wyœwietl numery departamentów oraz iloœci pracowników, którzy w nich pracuj¹, posortowane malej¹co po iloœciach pracowników:
+
+SELECT department_id "numer departamentu", COUNT(*) "ilosc pracownikow" FROM employees GROUP BY department_id ORDER BY "ilosc pracownikow" DESC;
+
+Operator MAX + GROUP BY - wyswietla wartoœci maksymalne w danej kolumnie z grup wierszy stworzonych przez ograniczenie GROUP BY, 
+np. Wyœwietl nazwy stanowisk i odpowiadaj¹ce im dopuszczalne p³ace maksymalne, posortowane malej¹co:
+
+SELECT job_title "nazwa stanowisko", MAX(max_salary) "maksymalna wyplata" FROM jobs GROUP BY job_title ORDER BY MAX(max_salary) DESC;
+
+Operatory MIN, MAX, AVG + GROUP BY - analogiczne operacje na wartoœciach liczbowych kolumn w grupach wierszy stworzonych przez operator GROUP BY, 
+np. Wyœwietl numery departamentów oraz najmniejsze, najwiêksze i œrednie wyp³aty pracowników, którzy s¹ do nich przypisani i których wyp³ata wynosi co najmniej 7000, posortowane rosn¹co po numerach departamentów:
+
+SELECT department_id "numer departamentu", MIN(salary) "minimalna wyplata", MAX (salary) "maksymalna wyplata" FROM employees WHERE salary>7000 GROUP BY department_id ORDER BY department_id;
+
+-----------------------------------------------------------------------------------------------------------------------------------
+
+PRZYK£ADY - 3 (ALIASY TABEL, zapytania do wielu tabel, JOIN .. ON, JOIN .. USING) 
+
+1. Zapytanie do dwóch tabel, np. Wyœwietl nazwy dzia³ów (department_name) oraz miasta (city), w których dzia³y siê znajduj¹ (tabele departments oraz locations)
+
+- bez klauzuli JOIN: 
+SELECT d.department_name, l.city FROM departments d, locations l WHERE d.location_id=l.location_id;
+
+- wykorzystuj¹c klauzulê JOIN .. ON:
+SELECT d.department_name, l.city FROM departments d JOIN locations l ON d.location_id=l.location_id;
+
+- wykorzystuj¹c klauzulê JOIN .. USING:
+SELECT department_name, city FROM departments JOIN locations USING (location_id);
+
+2. Zapytanie do wiêcej, ni¿ dwóch tabel, np. Wyœwietl nazwy dzia³ów (department_name) oraz miasta (city) i pañstwa (country_name), w których dzia³y siê znajduj¹ (tabele departments, locations oraz countries)
+
+- bez klauzuli JOIN: 
+SELECT d.department_name, l.city, c.country_name FROM departments d, locations l, countries c WHERE d.location_id=l.location_id AND l.country_id=c.country_id;
+
+- wykorzystuj¹c klauzulê JOIN .. ON: 
+SELECT d.department_name, l.city, c.country_name FROM departments d JOIN locations l ON d.location_id=l.location_id JOIN countries c ON l.country_id=c.country_id;
+
+- wykorzystuj¹c klauzulê JOIN .. USING: 
+SELECT department_name, city, country_name FROM departments JOIN locations USING (location_id) JOIN countries USING (country_id);
+
+---------------------------------------------------------------------------------------------------------------------------------
+
+ 4
+•	NATURAL JOIN - klauzula, która automatycznie wybiera kolumnê, po której chcemy ³¹czyæ tabele, na podstawie nazwy (uwaga! jeœli kilka kolumn ma takie same nazwy, ³¹czenie odbywa siê po wszystkich kolumnach!), np. 
+Wyœwietl nazwy departamentów (department_name) i miasta (city), w których siê znajduj¹ wykorzystuj¹c klauzulê NATURAL JOIN (tabele departments oraz locations)
+
+SELECT department_name, city FROM departments NATURAL JOIN locations
+•	LEFT / RIGHT / FULL OUTER JOIN - klauzula, która wyœwietla z tabeli po stronie lewej (LEFT), prawej (RIGHT) lub obu stronach ³¹czenia OUTER JOIN równie¿ te wartoœci, które nie maj¹ odpowiednika w przeciwleg³ej tabeli, np. 
+Wyœwietl nazwy departamentów (department_name) i wszystkie miasta (city), w których mog¹ siê znajdowaæ (tabele departments oraz locations)
+
+SELECT department_name, city FROM departments RIGHT OUTER JOIN locations USING(location_id)
+•	ROUND - klauzula, która wykorzystywana jest do zaokr¹glania wyników, np. 
+Wyœwietl nazwiska pracowników (last_name) i ich wyp³aty (salary) wyra¿one w procentach maksymalnych wyp³at przewidzianych dla ich stanowisk (kolumna max_salary w tabeli jobs) (tabele employees oraz jobs)
+
+SELECT last_name, ROUND(100*salary/max_salary) "procent mo¿liwej wyp³aty" FROM employees JOIN jobs USING(job_id)
+•	arytmetyka - mo¿na wykonywaæ dzia³ania arytmetyczne na wynikach lub kolumnach zawieraj¹cych wartoœci liczbowe (typu NUMBER), np. 
+Wyœwietl nazwiska pracowników (last_name), którzy maj¹ numer pracownika (employee_id) wy¿szy od numeru kierownika (manager_id) o ponad 90 (tabela employees)
+
+SELECT last_name FROM employees WHERE employee_id-manager_id > 90
+
+Pamiêtajcie o kolejnoœci s³ów kluczowych !
+
+SELECT -> FROM -> JOIN -> JOIN .. -> WHERE -> GROUP BY -> HAVING
+
+--------------------------------------------------------------------------------------------------------------------------------------
+
+5
+Pozdapytanie - zapytanie sql zawarte wewn¹trz innego zapytania, poprzez umieszczenie go w nawiasach; wynik podzapytania mo¿e byæ wykorzystany jako tabela lub pojedyncza wartoœæ,
+np. Wyœwietl nazwiska pracowników o numerze wiêkszym, ni¿ pracownik o nazwisku (last_name) Chen:
+
+SELECT last_name FROM employees WHERE employee_id > (SELECT employee_id FROM employees WHERE last_name='Chen')
+
+Podzapytanie jako tabela - wynik podzapytania mo¿emy wykorzystaæ jako tabelê, któr¹ mo¿emy po³¹czyæ z oryginaln¹ tabel¹ w bazie danych,
+np. Wyœwietl nazwy dzia³ów (department_name), ich numery (department_id) oraz iloœci pracowników, którzy w nich pracuj¹ (uwaga! COUNT(*) musi byæ u¿ywany jedynie z kolumn¹, która wystêpuje w GROUP BY! Nie mo¿emy wyœwietlaæ innych kolumn!):
+
+SELECT department_name, department_id, "ilosc prac" FROM departments JOIN (SELECT department_id, COUNT(*) "ilosc prac" FROM employees GROUP BY department_id) USING(department_id)
+
+Klauzule ALL / ANY - okreœlaj¹, ¿e warunek musz¹ spe³niæ wszystkie wiersze (ALL) lub co najmniej jeden wiersz (ANY),
+np. Wyœwietl nazwiska pracowników (last_name) o numerach (employee_id) wiêkszych, ni¿ co najmniej jeden (ANY) z pracowników dzia³u (department_name) IT:
+
+SELECT last_name FROM employees WHERE employee_id > ANY (SELECT employee_id FROM employees JOIN departments USING (department_id) WHERE department_name='IT')
+
+Ograniczenie IN - odnosi siê do warunków, jeœli chcemy aby wartoœci w ograniczanej kolumnie znajdowa³y siê wœród wartoœci bêd¹cych wynikiem podzapytania,
+np. Wyœwietl nazwiska pracowników (last_name), których wyp³ata (salary) jest taka sama, jak któregokolwiek pracownika dzia³u (department_name) IT:
+
+SELECT last_name FROM employees WHERE salary IN (SELECT salary FROM employees JOIN departments USING (department_id) WHERE department_name='IT')
+
+--------------------------------------------------------------------------------------------------------------------------
+
+6
+UWAGA !! Wszystkie polecenia modyfikuj¹ce bazy danych (INSERT INTO, UPDATE lub DELETE FROM) wykonujemy na w³asnej bazie danych! ;)
+
+PRZYK£ADY LAB 6 [DML (Data Manipulation Language): INSERT INTO, UPDATE, DELETE FROM]
+
+
+--> INSERT INTO .. (..) VALUES (..) - dodaje do tabeli okreœlonej po "INTO" jeden wiersz o wartoœciach okreœlonych po "VALUES" - wartoœci przypisywane s¹ kolumnom w nawiasach odpowiednio pierwsza wartoœc pierwsze kolumnie itd..
+
+Format ogólny:
+INSERT INTO table_name (column1, column2, column3,...)
+VALUES (value1, value2, value3,...)
+
+Przyk³ad:
+Dodaj dzia³ o nazwie 'Studenci' i numerze 280 do tabeli departments, podaj jedynie wymagane wartoœci (atrybut Nullable = 'No').
+
+INSERT INTO departments (department_id, department_name) VALUES (280,'Studenci');
+
+
+
+--> UPDATE .. SET .. WHERE .. - zmienia wartoœci w tabeli okreœlonej po "UPDATE", w kolumnach okreœlonych po "SET", w wierszach okreœlonych przez warunek "WHERE"
+
+Format ogólny:
+UPDATE table_name
+SET column1=value, column2=value2,...
+WHERE some_column=some_value
+
+Przyk³ad:
+Zmieñ nazwê dzia³u 'Studenci' na 'Studentki' w tabeli departments.
+
+UPDATE departments SET department_name='Studentki' WHERE department_name='Studenci';
+
+
+
+--> DELETE FROM .. WHERE .. - usuwa z tabeli okreœlonej po "FROM" wiersze okreœlone w warunku "WHERE"
+
+Format ogólny:
+DELETE FROM table_name
+WHERE some_column=some_value
+
+Przyk³ad:
+Usuñ dzia³ 'Studenki' z tabeli departments.
+
+DELETE FROM departments WHERE department_name='Studentki';
+
+-----------------------------------------------------------------------------------------------------------------     	
+
+PRZYK£ADY  7 - DDL (CREATE / ALTER / DROP TABLE, CONSTRAINS, VIEWS)
+•	CREATE TABLE - tworzy now¹ tabelê w bazie danych
+Schemat zapytania:
+
+CREATE TABLE table_name
+(
+column_name1 DATA_TYPE OGRANICZENIA,
+column_name2 DATA_TYPE OGRANICZENIA,
+column_name3 DATA_TYPE OGRANICZENIA,
+....
+);
+
+Najwa¿niejsze typy danych:
+
+NUMBER(p,s) - wartoœæ numeryczna o iloœci cyfr p i dok³adnoœci s (p - iloœæ wszystkich niezerowych cyfr, s - iloœæ cyfr po przecinku)
+VARCHAR2(v) - ci¹g znaków o dowolnej d³ugoœci (v - maksymalna iloœæ znaków)
+CHAR(c) - ci¹g znaków o sta³ej d³ugoœci (c - iloœæ znaków)
+DATE - data
+
+Podstawowe OGRANICZENIA danych, jakich mo¿emy u¿yæ do kolumn:
+
+NOT NULL - kolumna musi zawieraæ wartoœæ
+UNIQUE - wartoœci w kolumnie nie mog¹ siê powtarzaæ
+PRIMARY KEY - kolmuna not null oraz unique, klucz g³ówny (ka¿da tabela mo¿e mieæ tylko jeden)
+FOREIGN KEY - kolumna wskazuj¹ca na klucz g³ówny innej tabeli (równie¿ o takiej samej nazwie)
+CHECK - ogranicza wartoœci w kolumnie tylko do podanych w warunku
+DEFAULT - okreœla wartoœæ domyœln¹, jak¹ bêdzie mia³a kolumna
+
+Przyk³ad u¿ycia wszystkich podstawowych ograniczeñ i kilku typów danych:
+
+CREATE TABLE Niezly_przyklad
+(
+GlownyK NUMBER(5,0) PRIMARY KEY,
+Niezerowa VARCHAR2(10) NOT NULL,
+Niepowtarzalna CHAR(2) UNIQUE,
+ObcyK NUMBER(3,0) REFERENCES EMPLOYEES(employee_id),
+Sprawdzajaca NUMBER(5,2) CHECK (Sprawdzajaca>36.6),
+Domyslna VARCHAR2(32) DEFAULT 'domyslna_wartosc',
+Mieszana NUMBER(8,5) NOT NULL UNIQUE CHECK (Mieszana>123.45678)
+);
+
+Ograniczenia mo¿na równie¿ nak³adaæ na kolumny w osobnych krokach, poprzez klauzulê "CONSTRAINT", przy tworzeniu tabeli:
+
+CREATE TABLE Niezly_przyklad
+(
+GlownyK NUMBER(5,0),
+Niezerowa VARCHAR2(10) NOT NULL,
+Niepowtarzalna CHAR(2),
+ObcyK NUMBER(3,0),
+Sprawdzajaca NUMBER(5,2),
+Domyslna VARCHAR2(32) DEFAULT 'domyslna_wartosc',
+Mieszana NUMBER(8,5) NOT NULL,
+CONSTRAINT glowny PRIMARY KEY (GlownyK),
+CONSTRAINT unikaty UNIQUE (Niepowtarzalna,Mieszana),
+CONSTRAINT obce FOREIGN KEY (ObcyK) REFERENCES EMPLOYEES(employee_id),
+CONSTRAINT sprawdzacz CHECK (Sprawdzajaca>36.6 AND Mieszana>123.45678)
+);
+•	ALTER TABLE - modyfikuje dan¹ tabelê poprzez dodanie, zmianê lub usuniêcie kolumn lub ograniczeñ
+
+Schemat ogólny - dodawanie kolumny:
+
+ALTER TABLE table_name
+ADD column_name data_type OGRANICZENIA;
+
+Schemat ogólny - modyfikowanie atrybutów kolumny:
+
+ALTER TABLE table_name
+MODIFY column_name data_type OGRANICZENIA;
+
+Schemat ogólny - usuwanie kolumny:
+
+ALTER TABLE table_name
+DROP COLUMN column_name;
+
+Ograniczeñ nie trzeba definiowaæ przy tworzeniu tabeli, mo¿na póŸniej dodaæ je póŸniej, poprzez klauzulê "ADD CONSTRAINT":
+
+ALTER TABLE table_name 
+ADD CONSTRAINT constraint_name CONTRAINT_TYPE (column_name);
+
+Usuwanie ograniczeñ:
+
+ALTER TABLE table_name 
+DROP CONSTRAINT constraint_name;
+•	CREATE VIEW - tworzy widok, czyli wirtualn¹ tabelê, która automatycznie siê aktualizuje, gdy siê do niej odwo³ujemy
+
+Schemat ogólny:
+
+CREATE VIEW view_name AS
+SELECT column_name,...
+FROM table_name
+WHERE condition
+
+UWAGA - Widok mo¿e bazowaæ na dowolnym podzapytaniu SELECT 
+
+Przyk³ad - tworzenie widoku:
+
+CREATE VIEW Widoczek AS 
+SELECT department_id,COUNT(*) "asd" FROM employees GROUP BY (department_id);
+
+Przyk³ad - wykorzystanie widoku:
+
+SELECT * FROM Widoczek;
+
+•	DROP TABLE / DROP VIEW - usuwa tabelê / widok
+
+Schemat ogólny:
+
+DROP TABLE table_name;
+DROP VIEW view_name;
+
+•	dodawanie kilku wierszy do w jednym poleceniu:
+
+Schemat ogólny:
+
+INSERT ALL
+  INTO table_name (col_name1,...) VALUES (value1,...)
+  INTO table_name (col_name1,...) VALUES (value1,...)
+  INTO table_name (col_name1,...) VALUES (value1,...)
+SELECT * FROM dual;
+
+(tabela 'dual' w œrodowisku Oracle jest pomocnicz¹ tabel¹, wykorzystywan¹ w wielu ciekawych sytuacjach, polecam poczytaæ/poszukaæ/Google)
+
+---------------------------------------------------------------------------------------------------------------------------
+
+
+PRZYK£ADY 8 - SEKWENCJE, INDEKSY, SYNONIMY
+•	SEKWENCJE
+
+Sekwencja:
+- Obiekt w bazie danych równorzêdny np. z tabelami i widokami, posiadaj¹cy w³asn¹ nazwê (sprawdŸ na liœcie w menu SQL Developera)
+- automatycznie generuje kolejne wartoœci numeryczne (wykorzystywane przy dodawaniu wierszy, najczêœciej dla kluczy g³ównych, aby nie musieæ sprawdzaæ ostatniej wartoœci)
+
+* Parametry u¿ywane w sekwencjach:
+
+INCREMENT BY - okreœla wartoœæ dodawan¹ do kolejnej wartoœci sekwencji (domyœlnie 1)
+START WITH - okreœla pocz¹tkow¹ wartoœæ sekwencji (domyœlnie 1)
+MAXVALUE - okreœla maksymaln¹ wartoœæ sekwencji (domyœlnie 999999999999999999999999999)
+MINVALUE - okreœla minimaln¹ wartoœæ sekwencji (domyœlnie 1)
+CYCLE - opcja dodatkowa, w³¹cza powtarzanie wartoœci od minimalnej po osi¹gniêciu wartoœci maksymalnej
+CACHE - opcja dodatkowa, okreœla ile wartoœci sekwencji ma byæ pre-alokowanych w pamiêci w celu szybszego wywo³ywania
+
+* Przyk³ad - tworzenie, modyfikacja oraz usuwanie sekwencji:
+
+CREATE SEQUENCE dept_deptid_seq
+INCREMENT BY 10
+START WITH 120
+MAXVALUE 9999
+NOCACHE
+NOCYCLE
+
+ALTER SEQUENCE dept_deptid_seq
+INCREMENT BY 20
+
+DROP SEQUENCE dept_deptid_seq
+
+* Przyk³ad - wykorzystanie sekwencji dept_deptid_seq przy dodawaniu wiersza (w kluczu prywatnym):
+
+INSERT INTO departments(department_id,department_name, location_id)
+VALUES (dept_deptid_seq.NEXTVAL,'Support', 2500)
+
+* Wyœwietlenie aktualnej wartoœci sekwencji dept_deptid_seq:
+
+SELECT dept_deptid_seq.CURRVAL FROM dual
+
+Wywo³ania:
+CURRVAL - zwraca aktualn¹ wartoœæ sekwencji
+NEXTVAL - dodaje kolejn¹ wartoœæ do sekwencji
+
+* Wyœwietlanie wszystkich sekwencji (w kolumnie last_number wyœwietlony jest nastêpny wolny numer sekwencji):
+
+SELECT * FROM user_sequences
+•	INDEKSY
+
+Indeks:
+- Obiekt w bazie danych równorzêdny np. z tabelami i widokami, posiadaj¹cy w³asn¹ nazwê (sprawdŸ na liœcie w menu SQL Developera)
+- przyspiesza operacje wyœwietlania danych z bazy (przydatne w du¿ych bazach danych, jak Facebook czy Google)
+
+Indeks powinien byæ stworzony, gdy:
+- w kolumnie znajduje siê wiele ró¿nych wartoœci
+- kolumna jest czêsto wykorzystywana w klauzuli WHERE
+- tabela zawiera wiele rekordów i wiêkszoœæ zapytañ wywo³uje mniej ni¿ 4% wszystkich wierszy
+
+* Przyk³ad - tworzenie oraz usuwanie indeksu na kolumnie last_name w tabeli employees:
+
+CREATE INDEX emp_last_name_idx ON employees(last_name)
+
+DROP INDEX emp_last_name_idx
+
+* Wyœwietlanie wszystkich indeksów (przyk³ad dla tabeli EMPLOYEES):
+
+SELECT * FROM user_indexes
+•	SYNONIMY
+
+Synonim:
+- Obiekt w bazie danych równorzêdny np. z tabelami i widokami, posiadaj¹cy w³asn¹ nazwê (sprawdŸ na liœcie w menu SQL Developera)
+- u³atwia dostêp do obiektów w bazie danych poprzez stworzenie opcjonalnej (np. krótszej) nazwy
+
+* Przyk³ad - tworzenie oraz usuwanie synonimu dla widoku dept_sum_vu:
+
+CREATE SYNONYM d_sum FOR dept_sum_vu
+
+DROP SYNONYM d_sum
+
+---------------------------------------------------------------------------------------------------------------------------
+
+
+PRZYK£ADY LAB 9 - TRIGGERS (BEFORE, AFTER, :NEW, :OLD, SYSDATE, DECLARE, FOR EACH ROW, WHEN)
+
+Trigger - obiekt w bazie danych równorzêdny z tabelami, widokami itd. uruchamiany przed lub po wykonaniu pewnej akcji na tabeli, wykonuje szereg instrukcji lub zapytañ, napisanych w jêzyku PL/SQL. 
+•	Schemat ogólny tworzenia/modyfikowania triggerów (kwadratowe nawiasy zawieraj¹ polecenia opcjonalne):
+
+CREATE OR REPLACE TRIGGER nazwa_triggera BEFORE/AFTER akcja [OF kolumna] ON tabela [FOR EACH ROW] [WHEN warunek] 
+[DECLARE
+    zmienne]
+BEGIN
+lista instrukcji
+END;
+
+•	Parametry wykorzystywane przy triggerach:
+
+Definicja, kiedy ma siê trigger wykonaæ:
+
+CREATE OR REPLACE TRIGGER - instrukcja tworz¹ca lub modyfikuj¹ca istniej¹cy trigger
+
+AFTER - wywo³uje trigger po danej akcji, 
+BEFORE - przed ni¹, 
+
+akcja - akcj¹ mo¿e byæ INSERT, UPDATE lub DELETE (bez podania kolumny w bloku [PF kolumna], dotyczy ka¿dej kolumny w tabeli), 
+
+FOR EACH ROW (opcjonalne) - wywo³uje trigger dla ka¿dego wiersza, którego dotyczy dana akcja (UWAGA! oznacza to wielokrotne wywo³anie triggera!), umo¿liwia dostêp do konkretnych wartoœci (tzw. "row level trigger"), bez tego fragmentu mamy do czynienia z tzw. "table level trigger"
+
+
+"cia³o" triggera: 
+
+DECLARE (opcjonalne) - blok deklaracji zmiennych (nazwa + typ + œrednik), zawsze wystêpuje przed blokiem BEGIN - END, 
+
+Operatory OLD oraz NEW - wymagane przy odwo³ywaniu siê do wartoœci w kolumnach, wskazuj¹ na star¹ i now¹ wartoœæ (UWAGA! pomiêdzy BEGIN a END w formie ":NEW" oraz ":OLD"!)
+
+SYSDATE - zwraca aktualn¹ datê w systemie.
+
+IF (warunek) THEN (akcja) END IF; - standardowy warunek IF
+
+•	Usuwanie triggerów:
+DROP TRIGGER nazwa_triggera;
+
+
+PRZYK£ADY WYKORZYSTANIA TRIGGERÓW:
+•	Stwórz trigger, który zamienia nazwisko i email pracownika, którego wyp³ata uleg³a zmianie
+
+CREATE OR REPLACE TRIGGER change_name BEFORE UPDATE OF salary ON employees FOR EACH ROW
+BEGIN
+  :NEW.last_name:=:OLD.email;
+  :NEW.email:=:OLD.last_name;
+END;
+
+..Sprawdzamy trigger - np. wprowadzamy zmianê w p³acy pracownika o nr 122:
+
+UPDATE employees SET salary = 1234 WHERE employee_id = 122;
+
+..i sprawdzamy efekt:
+
+SELECT last_name, email FROM employees WHERE employee_id = 122;
+
+•	Stwórz trigger oraz tabelê, w której przechowywane bêd¹ wszelkie zmiany wartoœci wyp³aty (stara i nowa wartoœæ), id pracownika oraz czas, w który zosta³y wprowadzone:
+
+..Tworzymy tabelê, w której przechowywane bed¹ wszelkie zmiany wyp³at (stara i nowa wartoœæ), id pracownika oraz czas, w który zosta³y wprowadzone:
+
+CREATE TABLE emp_audit ( emp_id NUMBER(6), up_date DATE, old_sal NUMBER(8,2), new_sal NUMBER(8,2) );
+
+..Nastêpnie, tworzymy trigger (polecenie CREATE OR REPLACE tworzy lub zastêpuje obiekt istniej¹cy ju¿, o tej samej nazwie - oprócz tabel):
+
+CREATE OR REPLACE TRIGGER audit_sal AFTER UPDATE OF salary ON employees FOR EACH ROW
+BEGIN
+  INSERT INTO emp_audit VALUES( :OLD.employee_id, SYSDATE, :OLD.salary, :NEW.salary );
+END;
+
+..Sprawdzamy trigger - np. wprowadzamy zmianê w p³acach wszystkich pracowników, których kierownik ma nr 122:
+
+UPDATE employees SET salary = salary * 1.01 WHERE manager_id = 122;
+
+..i sprawdzamy nasz¹ tabelê:
+
+SELECT * FROM emp_audit;
+
+•	Stwórz trigger, który wpisuje do tabeli emp_updt_log datê oraz typ zmiany wprowadzonej na tabeli employees (UWAGA! Bez FOR EACH ROW!):
+
+..Tworzymy tabelê, w której przechowywane bêd¹ logi:
+
+CREATE TABLE emp_updt_log ( log_date DATE, action VARCHAR2(50) );
+
+..Tworzymy trigger, deklaruj¹c zmienn¹ "akcja", która przechowuje typ naszej akcji, po czym wpisujemy jej zawartoœæ do kolumny action w tabeli emp_updt_log: 
+
+CREATE OR REPLACE TRIGGER log_emp_updt AFTER UPDATE OR INSERT ON employees
+DECLARE
+  akcja VARCHAR2(50);
+BEGIN 
+  IF UPDATING THEN 
+    akcja:='Wiersz w tabeli employees aktualizowany';
+  END IF;
+  IF INSERTING THEN
+    akcja:='Wiersz dodany do tabeli employees';
+  END IF;
+  INSERT INTO emp_updt_log VALUES( SYSDATE, akcja );
+END;
+
+..Sprawdzamy trigger - poprzez modyfikacjê wiersza w tabeli employees:
+
+UPDATE employees SET salary=1212 WHERE employee_id=122;
+
+..i wyœwietlamy nasz¹ tabelê loguj¹c¹:
+
+SELECT * FROM emp_updt_log;
+

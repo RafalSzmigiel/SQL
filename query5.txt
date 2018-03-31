@@ -1,0 +1,6 @@
+
+
+5.1 SELECT last_name, salary FROM employees WHERE salary>0.9*(SELECT salary FROM employees WHERE last_name='Chen');
+5.2 SELECT last_name, department_name, salary FROM employees JOIN  departments USING (department_id) WHERE salary>ALL (SELECT salary FROM employees JOIN department USING (department_id) WHERE department_name='Marketing');
+5.3 SELECT department_name, "ilosc prac" FROM departments JOIN (SELECT department_id, COUNT(*) "ilosc prac" FROM employees GROUP BY department_id) USING (department_id) WHERE "ilosc prac">(SELECT COUNT(*) FROM employees JOIN departments USING (department_id) WHERE department_name="IT");
+*5.4 SELECT last_name, salary, "ilosc prac" FROM employees e JOIN (SELECT manager_id, COUNT(*) "ilosc prac" FROM employees GROUP BY manager_id) e2 ON e. employee_id=e2.manager_id

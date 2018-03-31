@@ -1,0 +1,138 @@
+1.	Pytanie nr 15
+SELECT * FROM pytania WHERE id=15;
+
+2.	Pytania, w których poprawn¹ odpowiedzi¹ jest "a"
+SELECT * FROM pytania WHERE answer = "a";
+
+3.	Pytania z roku 2007
+SELECT * FROM pytania WHERE rok = 2007;
+
+4.	Pytania z programowania z roku 2009
+SELECT * FROM pytania WHERE kategoria = 'programowanie' AND rok = 2009;
+
+5.	Tylko treœci pytañ i 4 odpowiedzi z roku 2010
+SELECT tresc, odpa, odpb, odpc, odpd FROM pytania WHERE rok = 2010;
+
+6.	Pytania u³o¿one alfabetycznie wg treœci
+SELECT * FROM pytania ORDER BY tresc ASC;
+
+7.	Treœci pytañ o numerach 10-12
+SELECT tresc FROM pytania WHERE id BETWEEN 10 AND 12;
+SELECT tresc FROM pytania WHERE id>=10 AND id<=12;
+
+8.	Pytania zaczynaj¹ce siê od s³ów “Jak”
+SELECT * FROM pytania WHERE tresc LIKE 'Jak%';
+
+9.	Pytania zawieraj¹ce frazê "C++"
+SELECT * FROM pytania WHERE tresc LIKE '%C++%' OR odpa LIKE '%C++%' OR odpb LIKE '%C++%'
+   OR odpc LIKE '%C++%' OR odpd LIKE '%C++%' ;
+
+
+
+10.	Pytania z programowania oraz systemów operacyjnych i sieci z roku 2012
+SELECT * FROM pytania WHERE (kategoria = "programowanie" OR kategoria = "systemy operacyjne i sieci") AND rok = 2012 ;
+
+ZnajdŸ w bazie:
+
+1.	Ksi¹¿ki u³o¿one alfabetycznie wg tytu³u
+SELECT * FROM ksiazki ORDER BY tytul ASC ;
+
+2.	Najdro¿sz¹ ksi¹¿kê w bazie
+SELECT * FROM ksiazki ORDER BY cena DESC LIMIT 1 ;
+
+3.	Wszystkie wys³ane zamówienia
+SELECT * FROM zamowienia WHERE status='wyslano';
+
+4.	Wszystkich klientów o nazwisku Rutkowski
+SELECT * FROM klienci WHERE nazwisko='rutkowski';
+
+5.	Ksi¹¿ki zawieraj¹ce wyra¿enie "PHP" w tytule
+SELECT * FROM ksiazki WHERE tytul LIKE '%php%' ;
+
+6.	Zamówienia u³o¿one od ostatnio dokonanego
+SELECT * FROM zamowienia ORDER BY data DESC ;
+
+Zapytania zwi¹zane z ³¹czeniem tabel:
+7. Wyjmij dla wszystkich zamówieñ: imiê i nazwisko klienta zamawiaj¹cego, id
+zamówienia, datê zamówienia
+SELECT k.imie, k.nazwisko, z.idzamowienia, z.data
+FROM klienci AS k, zamowienia AS z 
+WHERE k.idklienta=z.idklienta;
+
+8.	Imiona i nazwiska osób, które zamówi³y kiedykolwiek ksi¹¿kê nr 2
+SELECT k.imie, k.nazwisko, ks.idksiazki, z.idzamowienia, z.data, z.status
+FROM klienci AS k, ksiazki AS ks, zamowienia AS z
+WHERE ks.idksiazki = 2 AND k.idklienta = z.idklienta 
+AND ks.idksiazki = z.idksiazki;
+
+9.	Jakie ksi¹¿ki (tytu³, autor) zamówi³a osoba: Jan Nowak?
+SELECT ks.tytul, ks.imieautora, ks.nazwiskoautora
+FROM ksiazki AS ks, klienci AS k, zamowienia AS z
+WHERE k.imie='jan' AND k.nazwisko='nowak'
+AND k.idklienta = z.idklienta 
+AND ks.idksiazki = z.idksiazki ;
+
+
+10.	Zamówienia dokonane przez osoby o nazwisku Rutkowski u³o¿one wg daty od najpóŸniej dokonanych (imiê i nazwisko osoby zamawiaj¹cej, id, datê i status zamówienia, tytu³ zamówionej ksi¹¿ki)
+
+SELECT k.imie, k.nazwisko, z.idzamowienia, z.data, z.status, ks.tytul 
+FROM klienci AS k, zamowienia AS z, ksiazki AS ks
+WHERE (k.nazwisko='rutkowski'
+AND k.idklienta=z.idklienta
+AND ks.idksiazki=z.idksiazki)
+ORDER BY data DESC ;
+
+
+INSERT I UPDATE
+
+
+
+
+1.	Zmieñ nazwisko klienta nr4 na wartoœæ ‘Psikuta’
+UPDATE klienci 
+SET nazwisko=”psikuta” 
+WHERE idklienta=4; 
+
+2.	Zwiêksz cene wszystkich ksi¹¿ek w bazie o 10 %
+UPDATE ksiazki 
+SET cena = ROUND(cena*1.1,2) ;
+
+3.	Zmniejsz cene najdro¿szej ksi¹¿ki o 10 zl
+UPDATE ksiazki 
+SET cena=cena-10 
+ORDER BY cena 
+DESC LIMIT 1;
+
+4.	Zmien imie i nazwisko klienta Anna Karenina (idklienta=10) na wartoœæ : joanna dostojewska
+UPDATE klienci 
+SET imie=’joanna’, nazwisko=’dostojewska’ 
+WHERE idklienta=10;
+
+5.	 Zmien status zamowien o idzamowienia 4 i 5 na „wyslano”
+UPDATE zamówienia
+SET status=’wyslano’
+WHERE idzamowienia =4 AND idzamowienia=5;
+
+6.	Dodaj nowego klienta do bazy: Franciszek janowski z Chorzowa
+INSERT INTO klienci
+VALUES (NULL, ‘Franciszek’, ‘Jankowski’, ‘Chorzow’);
+
+7.	Wstaw do bazy ksiazke o tytule: Symfonia c++ i nazwisko autora grebosz, ale nie wstawiaj ceny ani imienia
+INSERT INTO ksi¹¿ki
+(idksiazki, nazwiskoautora,tytul)
+VALUES (NULL, ‘grebosz’, ‘symfonia c++’);
+
+8.	Dodaj dwoch nowych klientow za pomoca jednego zapytania
+INSERT INTO klienci
+VALUES (NULL, ‘Marilyn’, ‘Monroe’, ‘Los Angeles’) , ( NULL, ‘John’ , ‘Wayne’ ,’ Los Angeles’ );
+
+9.	Wstaw nowa osobe do bazy z uzyciem klauzuli set
+
+INSERT INTO klienci
+SET idklienta=NULL, imie=’Steven’ , nazwisko=’McQueen’, miejscowosc = ‘LA’;
+
+
+Spojnik AND/OR czy przecinek ?
+Przed WHERE stawiamy przecinki, natomiast po WHERE stawiamy pojniki AND/OR
+
+

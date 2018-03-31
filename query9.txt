@@ -1,0 +1,46 @@
+
+9.1.
+CREATE OR REPLACE TRIGGER change_salary AFTER UPDATE OF salary ON employees FOR EACH ROW
+BEGIN
+IF(:new.salary >= 5000) THEN INSERT INTO emp_gotrich VALUES(employee_id, SYSDATE, :old.salary, :new.salary); END IF;
+END;
+
+9.2.
+CREATE OR REPLACE TRIGGER wzrost_placy BEFORE UPDATE OF department_id ON employees FOR EACH ROW
+BEGIN
+:new.salary:=:old.salary*1.1;
+END;
+
+9.3.
+CREATE OR REPLACE TRIGGER typ_zmiany AFTER UPDATE OR INSERT OR DELETE ON departments
+DECLARE 
+akcja VARCHAR2(3);
+BEGIN
+IF UPDATING THEN
+akcja:='upd';
+END IF;
+IF INSERTING THEN
+akcja:='ins';
+END IF;
+IF DELETING THEN
+akcja:='del';
+END IF;
+INSERT INTO dept_changes VALUES(SYSDATE, akcja);
+END;
+
+*9.4.
+CREATE OR REPLACE TRIGGER liczba_prac AFTER UPDATE ON employees FOR EACH ROW
+DECLARE 
+licznik NUMBER(5);
+BEGIN
+SELECT count(*) INTO licznik FROM employees;
+INSERT INTO emp_count VALUES (licznik, SYSDATE);
+END;
+
+**9.5.
+CREATE TABLE employees_copy AS (SELECT * FROM employees);
+CREATE OR REPLACE TRIGGER awans AFTER UPDATE OF job_id ON employees_copy FOR EACH ROW
+BEGIN
+IF(:new.job_id LIKE '%MAN%') THEN
+INSERT INTO emp_promoted VALUES( :OLD.employee_id, SYSDATE); END IF;
+END;

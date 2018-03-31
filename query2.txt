@@ -1,0 +1,21 @@
+
+
+2.1 SELECT DISTINCT job_id "kod stanowiska", manager_id "numer kierownika" FROM employees WHERE MANAGER_ID =100 or manager_id= 102 ORDER BY manager_id
+
+2.2 SELECT salary "wyplata", last_name "nazwisko" FROM employees WHERE salary>10000 AND manager_id=100 ORDER BY SALARY DESC
+
+2.3 SELECT last_name "nazwisko", salary "wyplata", job_id "kod stanowiska" FROM employees WHERE job_id LIKE '%MGR' ORDER BY SALARY DESC
+
+2.4 SELECT job_id "kod stanowiska", job_title "nazwa stanowiska" FROM jobs WHERE job_title LIKE '% %'
+
+2.5 SELECT employee_id "numer pracownika", salary "wyplata", job_id "kod stanowiska" FROM employees WHERE salary>3000 AND job_id LIKE '%ST' OR job_id LIKE '%SH' ORDER BY employee_id ASC
+
+2.6 SELECT job_id "kod stanowiska", COUNT(*) "ilosc pracownikow" FROM employees GROUP BY job_id ORDER BY "ilosc pracownikow" DESC
+
+2.7 SELECT manager_id "numer kierownika", MAX(salary) "maksymalna wyplata" FROM employees GROUP BY manager_id 
+
+2.8 SELECT job_id "kod stanowiska", AVG(salary) "srednia wyplata" FROM employees GROUP BY job_id ORDER BY AVG(salary) DESC
+
+2.9 SELECT job_id "kod stanowiska", MIN(salary) "min wyplata", AVG(salary) "srednia wyplata", MAX(salary) "max wyplata", COUNT(*) "ilosc pracownikow" FROM employees WHERE salary>5000 GROUP BY job_id  ORDER BY MIN(salary) ASC
+
+2.10 SELECT manager_id "numer kierownika", AVG(salary) "srednia wyplata" FROM employees GROUP BY manager_id HAVING AVG(salary)>5000

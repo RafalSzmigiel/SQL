@@ -1,0 +1,240 @@
+﻿
+
+1.1. Wszystkich nazwisk pracowników oraz ich wypłat (SELECT, FROM - tabela employees)
+1.2. Wszystkich nazw działów w kolumnie "nazwa_dzialu" wraz z numerami identyfikacyjnymi ich kierowników w kolumnie "numer_kierownika" (SELECT, FROM, alias - tabela departments)
+1.3. Nazwisk wszystkich pracowników, którzy zarabiają więcej niż 10000 wraz z ich płacami, posortowane w kolejności od najwięcej do najmniej zarabiającego (SELECT, FROM, WHERE, ORDER BY - tabela employees)
+
+SELECT last_name, salary FROM EMPLOYEES;
+SELECT department_id AS "nazwa_dzialu", manager_id AS "numer_kierownika" FROM DEPARTMENTS ;
+SELECT last_name, salary from EMPLOYEES WHERE salary > 10000 ORDER BY salary DESC;
+
+
+
+2.1. Kodów stanowisk (job_id) bez powtarzania oraz numerów kierowników (manager_id) dla kierowników o numerach 100 lub 102. (DISTINCT, AND/OR tabela employees -> 6 rows, 2 columns)
+
+2.2. Nazwisk (last_name) oraz wypłat (salary) pracowników przypisanych do kierownika o numerze (manager_id) 100, których wypłaty wynoszą ponad 10000, posortowanych malejąco pod względem wypłaty. (AND/OR, tabela employees -> 9 rows, 2 columns)
+
+2.3. Nazwisk (last_name), wypłat (salary) oraz kodów stanowisk (job_id) pracowników, których kod stanowiska kończy się na "_MGR", posortowanych malejąco pod względem wypłaty (salary). Uzyj polskich nazw kolumn. (LIKE, tabela employees -> 2 rows, 3 columns)
+
+*2.4. Kodów stanowisk (job_id) oraz nazw stanowisk (job_title), dla których nazwa stanowiska składa się co najmniej z dwóch wyrazów. Użyj polskich nazw kolumn. (tabela jobs -> 16 rows, 2 columns)
+
+*2.5. Numerów (employee_id), wyplat (salary) oraz kodów stanowisk (job_id) pracowników, których wypłata wynosi ponad 3000 oraz kod stanowiska rozpoczyna się od "ST" lub "SH", posortowanych rosnąco pod względem numeru pracownika. (tabela employees -> 23 rows, 3 columns)
+
+2.6. Ilości pracowników przypisanych do każdego kodu stanowiska (job_id) wraz z odpowiadającymi kodami stanowisk, posortowanych malejąco pod względem ilości pracowników. (COUNT(*), GROUP BY, tabela employees -> 19 rows, 2 columns)
+
+2.7. Numerów kierowników (manager_id) oraz największych wypłat (salary) pracowników, którzy są do nich przypisani. (MAX, GROUP BY, tabela employees -> 19 rows, 2 columns)
+
+2.8. Kodów stanowisk (job_id) oraz średnich wypłat (salary) pracowników, którzy są do nich przypisani, posortowanych malejąco po średnich wypłatach. Użyj polskich nazw kolumn. (AVG, GROUP BY, tabela employees -> 19 rows, 2 columns)
+
+2.9. Kodów stanowisk (job_id), ilości przypisanych do nich pracowników oraz najmniejszych, średnich i największych wypłat (salary) dla pracowników, którzy są do nich przypisani oraz zarabiają ponad 5000, posortowanych rosnąco po najmniejszych wypłatach. Użyj polskich nazw kolumn. (COUNT(*), MIN, AVG, MAX, GROUP BY, tabela employees -> 15 rows, 5 columns)
+
+*2.10. Numerów kierowników (manager_id), których pracownicy zarabiają średnio ponad 5000 oraz średnich wypłat wszystkich pracowników do nich przypisanych. (tip: Google "SQL HAVING" ;), tabela employees -> 12 rows, 2 columns)
+
+
+--1
+SELECT DISTINCT job_id ,
+MANAGER_ID
+FROM employees
+WHERE MANAGER_ID=100
+OR MANAGER_ID =102; --1
+--2
+SELECT last_name "Nazwiska",
+salary "Wyplata"
+FROM EMPLOYEES
+WHERE MANAGER_ID=100
+AND SALARY >10000
+ORDER BY SALARY DESC; --2
+--3
+SELECT last_name "Nazwisko",
+salary "Wyplata",
+job_id "Kod stanowiska"
+FROM EMPLOYEES
+WHERE JOB_ID LIKE '%_MGR'
+ORDER BY salary DESC; --3
+--4
+SELECT job_id, job_title FROM JOBS WHERE REGEXP_LIKE(job_title,' ');
+
+--5
+SELECT employee_id "Numer",
+salary "Wyplata",
+job_id "kod stanowisk"
+FROM employees
+WHERE salary>3000
+AND (job_id LIKE 'ST%'
+OR job_id LIKE 'SH%')
+ORDER BY EMPLOYEE_ID ASC; --5
+--6
+SELECT job_id "kod stanowiska",
+COUNT(*) "ilosc pracownikow"
+FROM employees
+GROUP BY job_id
+ORDER BY "ilosc pracownikow" DESC;--6
+--7
+SELECT MANAGER_ID "Numer kierownika",
+MAX(SALARY) "maksymalna wyplata"
+FROM EMPLOYEES
+GROUP BY MANAGER_ID ;--7
+--8
+SELECT job_id "kod stanowisk",
+AVG(salary) "średnia wyplata"
+FROM employees
+GROUP BY job_id
+ORDER BY AVG(SALARY) DESC;--8
+--9
+SELECT job_id "Kod stanowisk",
+COUNT(*) "ilosc pracownikow",
+MIN(salary) "minimalna wyplata",
+AVG(salary) "srednia wyplata",
+MAX(salary) "maksymalna wyplata" --9
+FROM employees
+WHERE salary>5000
+GROUP BY job_id
+ORDER BY MIN(salary) ASC;
+--10
+SELECT manager_id,
+AVG(salary) "srednia wyplata"
+FROM EMPLOYEES
+GROUP BY manager_id
+HAVING AVG(salary)>5000;
+
+
+
+
+3.1. Nazw działów (department_name), nazwisk (last_name) oraz płac (salary) pracowników, którzy zarabiają ponad 12000, bez wykorzystania klauzuli JOIN (tabele employees oraz departments -> 8 rows, 3 columns)
+
+3.2. Nazw działów (department_name), nazwisk (last_name) oraz płac (salary) pracowników, którzy zarabiają ponad 12000, wykorzystując klauzulę JOIN (tabele employees oraz departments -> 8 rows, 3 columns)
+
+3.3. Nazwisk pracowników (last_name), nazw działów (department_name) i miast (city), w których pracują, bez wykorzystania klauzuli JOIN (tabele employees, departments oraz locations -> 106 rows, 3 columns)
+
+3.4. Nazwisk pracowników (last_name), nazw działów (department_name) i miast (city), w których pracują, wykorzystując klauzulę JOIN (tabele employees, departments oraz locations -> 106 rows, 3 columns)
+
+3.5. Nazw działów (department_name) i ilości pracowników, którzy w nich pracują (tabele employees oraz departments -> 11 rows, 2 columns)
+
+*3.6. Nazw państw (country_name) i ilości pracowników, którzy w nich pracują (4 rows, 2 columns)
+
+**3.7. Nazwisk pracowników (last_name) i nazwisk ich kierowników (last_name), posortowane rosnąco po nazwiskach kierowników. Użyj aliasów kolumn. (106 rows)
+
+
+--1
+SELECT d.department_name,
+e.last_name,
+e.salary
+FROM departments d,
+employees e
+WHERE d.department_id=e.department_id
+AND e.salary > 12000;
+
+--2
+SELECT d.department_name,
+e.last_name,
+e.salary
+FROM departments d
+JOIN employees e
+ON d.department_id=e.department_id
+WHERE salary > 12000;
+
+--3
+SELECT e.last_name,
+d.department_name,
+l.city
+FROM departments d,
+employees e,
+locations l
+WHERE e.department_id=d.department_id
+AND d.location_id =l.location_id;
+
+--4
+SELECT e.last_name,
+d.department_name,
+l.city
+FROM departments d
+JOIN employees e
+ON d.department_id=e.department_id
+JOIN locations l
+ON d.location_id=l.location_id;
+
+--5
+SELECT department_name,
+COUNT(*) "ilosc pracownikow"
+FROM departments
+JOIN employees USING (department_id)
+GROUP BY department_name;
+
+--6
+SELECT country_name,
+COUNT(*) AS "ilosc pracownikow"
+FROM countries
+JOIN locations USING (country_id)
+JOIN departments USING (location_id)
+JOIN employees USING (department_id)
+GROUP BY country_name;
+
+--7
+SELECT p.last_name AS "nazwiska pracownikow",
+k.last_name AS "nazwiska kierownikow"
+FROM employees p,
+employees k
+WHERE p.manager_id=k.employee_id
+ORDER BY "nazwiska kierownikow" ASC;
+
+
+
+
+4.1. Nazwisk pracowników (last_name), wszystkich nazw działów (department_name) oraz wszystkich miast (city), w których mogą pracować (OUTER JOIN, tabele employees, departments oraz locations -> 138 rows, 3 columns)
+
+4.2. Nazw działów (department_name), które zatrudniają ponad 5 pracowników wraz z ilościami pracowników, którzy w nich pracują, wykorzystując klauzulę NATURAL JOIN (HAVING, tabele departments oraz employees -> 2 rows, 2 columns)
+
+4.3. Nazw działów (department_name), które zatrudniają ponad 5 pracowników wraz z ilościami pracowników, którzy w nich pracują, nie wykorzystując klauzuli NATURAL JOIN (HAVING, tabele departments oraz employees -> 4 rows, 2 columns)
+
+4.4. Nazwisk pracowników (last_name) oraz ich wypłat (salary) wyrażone w procentach wartości środkowej płacy ustalonej dla danego stanowiska, zaokrąglone do wartości całkowitych. Posortuj wyniki malejąco po wartościach procentowych. (kolumny min_salary oraz max_salary w tabeli jobs to minimalne oraz maksymalne płace ustalone dla każdego stanowiska) (ROUND, tabele employees oraz jobs -> 107 rows, 2 columns)
+
+*4.5. Nazw działów (department_name), w których pracuje co najmniej dwóch pracowników, którzy zarabiają ponad 80% maksymalnej płacy ustalonej na swoim stanowisku (max_salary), wraz z ilościami pracowników spełniającymi to kryterium. (tabele employees, departments oraz jobs -> 3 rows, 2 columns)
+
+*4.6. Nazw działów (department_name), ilości pracowników, którzy w nich pracują oraz rozpiętości płac (salary), wyrażone w procentach zaokrąglonych do dwóch miejsc po przecinku. (tabele employees oraz departments -> 11 rows, 3 columns) (small tip: rozpiętość szeregu wartości liczymy ze wzorku: (MAX-MIN)/(AVG*2), gdzie MAX to największa wartość w szeregu, MIN to najmniejsza wartość w szeregu, a AVG to średnia wartość wszystkich w szeregu - w tym wypadku są to funkcje na kolumnie salary)
+
+**4.7. Nazwisk pracowników (last_name) i dat ich zatrudnienia (hire_date), którzy zostali zatrudnieni wcześniej, niż pracownik o numerze 123. (tabela employees -> 47 rows, 2 columns) (uwaga! trzeba użyć podzapytania (ang. nested query), nie było tego jeszcze na laboratorium.)
+
+
+--1
+SELECT E.last_name, D.department_name, L.city
+FROM employees E FULL OUTER JOIN departments D USING(department_id)
+RIGHT OUTER JOIN locations L USING (location_id);
+
+--2
+SELECT D.department_name, COUNT(*) as Ilosc_pracownikow
+FROM departments D NATURAL JOIN employees
+GROUP BY D.department_name
+HAVING COUNT(*) > 5;
+
+--3
+SELECT D.department_name, COUNT(*) AS ILOSC_PRACOWNIKOW
+FROM departments D RIGHT OUTER JOIN employees E
+USING(department_id)
+HAVING count(*) > 5
+GROUP BY D.department_name;
+
+--4
+SELECT E.last_name, ROUND(E.salary/((J.min_salary + J.max_salary)/2)*100) AS SREDNIA_PLACA_PROCENTOWO
+FROM EMPLOYEES E NATURAL JOIN jobs J
+ORDER BY SREDNIA_PLACA_PROCENTOWO DESC;
+
+--5
+SELECT department_name AS Nazwa_dzialu,
+COUNT(employee_id) AS ilosc
+FROM departments JOIN employees USING(department_id) JOIN jobs USING(job_id)
+WHERE ROUND(100*salary/max_salary) > 80
+GROUP BY department_name
+HAVING COUNT(employee_id) >=2;
+--6
+SELECT department_name AS Nazwa_dzialu,
+COUNT(employee_id) AS ilosc,
+ROUND((((max(salary)+min(salary))/2)/100),2) AS Wyplata
+FROM departments JOIN employees USING(department_id)
+GROUP BY department_name;
+--7
+SELECT last_name, hire_date FROM employees
+WHERE hire_date <
+(
+SELECT hire_date
+FROM employees
+WHERE employee_id = '123');
